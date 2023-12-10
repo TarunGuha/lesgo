@@ -1,0 +1,2 @@
+# lesgo
+Learning Go
