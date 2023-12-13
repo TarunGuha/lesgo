@@ -35,7 +35,6 @@ func isInt(b byte) bool {
 
 func fmatcher(s string) int {
 	smap := hmatcher()
-	fmt.Println(smap)
 	for i := 0; i < len(s); i++ {
 		if isInt(s[i]) {
 			value, _ := strconv.Atoi(string(s[i]))
@@ -43,7 +42,33 @@ func fmatcher(s string) int {
 		}
 		for j := 0; j < 10; j++ {
 			length, _ := strconv.Atoi(smap[j][0])
-			if i+length < len(s) {
+			if i+length <= len(s) {
+				flag := 1
+				for k := 0; k < length; k++ {
+					if s[i:][k] != smap[j][1][k] {
+						flag = -1
+						break
+					}
+				}
+				if flag == 1 {
+					return j
+				}
+			}
+		}
+	}
+	return -1
+}
+
+func lmatcher(s string) int {
+	smap := hmatcher()
+	for i := len(s) - 1; i >= 0; i-- {
+		if isInt(s[i]) {
+			value, _ := strconv.Atoi(string(s[i]))
+			return value
+		}
+		for j := 0; j < 10; j++ {
+			length, _ := strconv.Atoi(smap[j][0])
+			if i+length <= len(s) {
 				flag := 1
 				for k := 0; k < length; k++ {
 					if s[i:][k] != smap[j][1][k] {
@@ -69,35 +94,21 @@ func main() {
 	}
 
 	sum := 0
-	val := 0
 
 	fileScanner := bufio.NewScanner(readFile)
 
 	for fileScanner.Scan() {
-		number := ""
 		str := fileScanner.Text()
-		val = fmatcher(str)
+		val1 := fmatcher(str)
+		val2 := lmatcher(str)
 
-		for i := 0; i < len(str); i++ {
-			if isInt(str[i]) {
-				number = number + string(str[i])
-				break
-			}
-		}
+		svalue := strconv.Itoa(val1) + strconv.Itoa(val2)
+		nvalue, _ := strconv.Atoi(svalue)
 
-		for i := (len(str) - 1); i >= 0; i-- {
-			if isInt(str[i]) {
-				number = number + string(str[i])
-				break
-			}
-		}
-
-		value, _ := strconv.Atoi(number)
-		sum = sum + value
+		sum = sum + nvalue
 	}
 	readFile.Close()
 
-	// fmt.Println(sum)
+	fmt.Println(sum)
 
-	fmt.Println(val)
 }
