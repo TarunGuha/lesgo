@@ -21,26 +21,22 @@ func row_creator(line string) []int {
 	return temp_row
 }
 
-func mapper(source int, mappings [][]int) int {
+func reverse_mapper(destination int, mappings [][]int) int {
 	for _, record := range mappings {
-		if source >= record[1] && source < record[1]+record[2] {
-			return (record[0] + (source - record[1]))
+		if destination >= record[0] && destination < record[0]+record[2] {
+			return (record[1] + (destination - record[0]))
 		}
 	}
-	return source
+	return destination
 }
 
-func find_minimum(list []int) int {
-
-	min := list[0]
-
-	for _, num := range list {
-		if num < min {
-			min = num
+func seed_validator(seed int, seed_locations [][]int) bool {
+	for _, value := range seed_locations {
+		if seed >= value[0] && seed < value[0]+value[1] {
+			return true
 		}
 	}
-
-	return min
+	return false
 }
 
 func main() {
@@ -51,10 +47,8 @@ func main() {
 		fmt.Println(err)
 	}
 
-	var min_location int
-
 	var seed_ranges []int
-	var seed_locations []int
+	var seed_locations [][]int
 	var seed_to_soil [][]int
 	var soil_to_fertilizer [][]int
 	var fertilizer_to_water [][]int
@@ -62,7 +56,6 @@ func main() {
 	var light_to_temperature [][]int
 	var temperature_to_humidity [][]int
 	var humidity_to_location [][]int
-	var locations []int
 
 	seed_to_soil_entry := false
 	soil_to_fertilizer_entry := false
@@ -90,9 +83,7 @@ func main() {
 				}
 			}
 			for i := 0; i < len(seed_ranges); i = i + 2 {
-				for j := 0; j < seed_ranges[i+1]; j++ {
-					seed_locations = append(seed_locations, seed_ranges[i]+j)
-				}
+				seed_locations = append(seed_locations, []int{seed_ranges[i], seed_ranges[i+1]})
 			}
 			continue
 		}
@@ -170,18 +161,19 @@ func main() {
 
 	}
 
-	for _, seed := range seed_locations {
-		soil := mapper(seed, seed_to_soil)
-		fertilizer := mapper(soil, soil_to_fertilizer)
-		water := mapper(fertilizer, fertilizer_to_water)
-		light := mapper(water, water_to_light)
-		temperature := mapper(light, light_to_temperature)
-		humidity := mapper(temperature, temperature_to_humidity)
-		location := mapper(humidity, humidity_to_location)
-		locations = append(locations, location)
+	for location := 0; ; location++ {
+
+		humidity := reverse_mapper(location, humidity_to_location)
+		temperature := reverse_mapper(humidity, temperature_to_humidity)
+		light := reverse_mapper(temperature, light_to_temperature)
+		water := reverse_mapper(light, water_to_light)
+		fertilizer := reverse_mapper(water, fertilizer_to_water)
+		soil := reverse_mapper(fertilizer, soil_to_fertilizer)
+		seed := reverse_mapper(soil, seed_to_soil)
+
+		if seed_validator(seed, seed_locations) {
+			fmt.Println(location)
+			break
+		}
 	}
-
-	min_location = find_minimum(locations)
-
-	fmt.Println(min_location)
 }
