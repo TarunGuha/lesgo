@@ -40,14 +40,15 @@ func zero_checker(list []int) bool {
 
 func value_finder(line string) int {
 	values := mapper(line)
-	sum := values[len(values)-1]
-
+	sum := values[0]
+	flag := 1
 	for {
 		if zero_checker(values) {
 			break
 		}
 		values = extractor(values)
-		sum = sum + values[len(values)-1]
+		sum = sum - (values[0] * flag )
+		flag = flag * -1
 	}
 
 	return sum
